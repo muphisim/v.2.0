@@ -1,0 +1,87 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Note: With OpenFOAM v1806 and OpenFOAM 6, the DyM solvers
+// were marked deprecated and merged into their respective standard solvers.
+
+application     pimpleFoam;    // OpenFOAM v1806, OpenFOAM 6, or newer
+// application     pimpleDyMFoam; // OpenFOAM v1712, OpenFOAM 5.x, or older
+
+//application     simpleFoam;
+//application     icoFoam;
+
+libs ( "libOpenFOAM.so" ) ;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         100;
+
+deltaT          0.01;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+functions
+{
+
+    #includeFunc  flowRatePatch(name=right)
+    #includeFunc  flowRatePatch(name=left)
+    #includeFunc  flowRatePatch(name=inlet)
+    #includeFunc  flowRatePatch(name=outlet)
+
+    #includeFunc  components(U)
+
+    linesample
+    {
+        type sets;
+        functionObjectLibs (“libsampling.so”);
+        writeControl timeStep;
+        outputInterval 10;
+
+        interpolationScheme cellPoint;
+        setFormat raw;
+        sets
+            (
+            data
+                {
+                type uniform;
+                axis x;
+                start (0 0 0);
+                end (1.3 0 0);
+                nPoints 130;
+                }
+            );
+        fields ( U);
+    }
+
+    preCICE_Adapter
+    {
+        type preciceAdapterFunctionObject;
+        libs ("libpreciceAdapterFunctionObject.so");
+    }
+
+}

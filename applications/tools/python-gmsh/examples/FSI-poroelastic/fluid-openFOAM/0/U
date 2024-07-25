@@ -1,0 +1,60 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+Umax    1;
+
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedProfile;
+        profile         polynomial
+        (
+            (($Umax 0 0)        (0 0 0))
+            ((#calc "-$Umax" 0 0)    (2 0 0)) // 1/a^2
+        );
+        direction       (0 1 0);
+        origin          0;
+    }
+    left
+    {
+        type            noSlip;
+    }
+    right
+    {
+        type            movingWallVelocity;
+        value           uniform (0 0 0);
+    }
+    top
+    {
+        type            noSlip;
+    }
+    bottom
+    {
+        type            noSlip;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    outlet
+    {
+        type            pressureInletOutletVelocity;
+
+        tangentialVelocity  uniform (0 0 0);
+	  value 		    uniform (0 0 0);
+    }
+}
+
+
+// ************************************************************************* //

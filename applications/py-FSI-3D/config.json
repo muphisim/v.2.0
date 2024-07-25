@@ -1,0 +1,21 @@
+{   
+    "caseDirectory": "runFolder",
+    "runFromStart": true,
+    "fluidMeshSize": 0.15,
+    "solidMeshSize": 0.15,
+    "dimension": 3,
+    "solidProcessors": 6,
+    "fluidProcessors": [1, 2, 3],
+    "fluidStressInterfaces": [1],
+    "deformingInterfaces": [1, 2],
+    "youngsModulus": 5e4,
+    "poissonRatio": 0.45,
+    "solidDensity": 1.05,
+    "maxIterations":15,
+    "relaxationModulus": 0.5,
+    "solver": "\"IMPLICIT\"",
+    "solverNumSteps": 3000,
+    "relativeTolerance": 1e-3,
+    "absoluteTolerance": 1e-4,    
+    "cleanFiles": true
+}

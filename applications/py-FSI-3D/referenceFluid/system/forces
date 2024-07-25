@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+forces
+{
+    type          forces;
+    libs          (forces);
+
+    writeControl  writeTime;
+    timeInterval  1;
+
+    patches       ("flap");
+    rho           rhoInf;     // Indicates incompressible
+    log           true;
+    rhoInf        1;          // Redundant for incompressible
+    porosity        no;
+
+    writeFields     yes;
+    CofR          (0 0 0);    // Centre of rotation for moment calculations
+    pitchAxis     (0 1 0);
+}
+
+
+
+// ************************************************************************* //
+
+

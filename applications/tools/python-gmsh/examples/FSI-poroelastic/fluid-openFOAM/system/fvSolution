@@ -1,0 +1,128 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+
+    p
+    {
+            
+    solver           PCG;
+    preconditioner   DIC;
+    tolerance        1e-8;
+    relTol 	         1e-3;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
+
+    pcorr
+    {
+        $p;
+    }
+
+    pcorrFinal
+    {
+        $pcorr;
+        relTol          0;
+    }
+
+    Phi
+    {
+        $p;
+    }
+
+
+  //  U
+//    {
+ //       solver          smoothSolver;
+  //      smoother        symGaussSeidel;
+  //      tolerance       1e-05;
+  //      relTol          0;
+ //   }
+    "(U|cellDisplacement)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          1e-4;
+        minIter         2;
+    }
+
+    "(U|cellDisplacement)Final"
+    {
+        $U;
+        relTol          0;
+    }
+
+}
+
+PIMPLE
+{
+    nCorrectors 4;
+    nNonOrthogonalCorrectors 1;
+    //tolerance 1.0e-14;
+    relTol 1e-8;
+    consistent  true;
+    correctPhi  true;
+    momentumPredictor true; 
+    nOuterCorrectors	1;
+
+}
+
+SIMPLE
+{
+    //nCorrectors 4;
+    nNonOrthogonalCorrectors 0;
+    // tolerance 1.0e-14;
+    // relTol 5e-3;
+    consistent  true;
+
+    residualControl
+    {
+        p               1e-4;
+        U               1e-6;
+        "(k|epsilon|omega|f|v2)" 1e-5;
+    }
+}
+
+PISO
+{
+    nCorrectors 2;
+    nNonOrthogonalCorrectors 4;
+    // tolerance 1.0e-14;
+    // relTol 5e-3;
+    pRefCell 0;
+    pRefValue 0;
+
+
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.9;
+        ".*"            0.8;
+    }
+}
+
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
+}
+
+
+
+// ************************************************************************* //

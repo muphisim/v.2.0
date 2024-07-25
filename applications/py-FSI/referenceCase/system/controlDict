@@ -1,0 +1,120 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2500;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   1000;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{
+    solverInfo1
+    {
+        type            solverInfo;
+        libs            ("libutilityFunctionObjects.so");
+        fields          (U p nuTilda);
+        writeResidualFields no;
+        executeControl      timeStep;
+        executeInterval     1;
+    }
+
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        log             true;
+        patches         (aerofoil);
+        rho             rhoInf;      // Indicates incompressible.
+        rhoInf          1.18;        // Redundant for incompressible (value does not matter).
+        liftDir         (0 0 1);
+        dragDir         (1 0 0);
+        CofR            (0.25 0 0);  // Quarter-chord.
+        pitchAxis       (0 0 1);
+        magUInf         51.4815;           // Matches 0/U.
+        lRef            1.0;         // Normalized chord.
+        Aref            1;         // Cell depth * chord.
+    }
+    yPlus1
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+    
+    wallShearStress1
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+        
+        patches         (aerofoil);
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+
+    samplePwall1
+    {
+        type            surfaceFieldValue;
+        libs            ("fieldFunctionObjects");
+
+        writeControl    writeTime;
+        writeFields     true;
+
+        surfaceFormat   raw;
+        regionType      patch;
+        name            aerofoil;
+
+        operation       none;
+
+        fields
+        (
+            p
+            yPlus
+            wallShearStress
+        );
+    }
+}
+
+
+// ************************************************************************* //

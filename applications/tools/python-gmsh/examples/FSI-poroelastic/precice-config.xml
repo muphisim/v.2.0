@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<precice-configuration>
+  <log>
+    <sink
+      filter="%Severity% > debug and %Rank% = 0"
+      format="---[precice] %ColorizedSeverity% %Message%"
+      enabled="true" />
+  </log>
+
+  <solver-interface dimensions="2">
+    <data:vector name="Pressure" />
+    <data:vector name="Displacement" />
+
+    <mesh name="Fluid-Mesh-Faces">
+      <use-data name="Pressure" />
+    </mesh>
+
+    <mesh name="Fluid-Mesh-Nodes">
+      <use-data name="Displacement" />
+    </mesh>
+
+    <mesh name="Solid-Mesh">
+      <use-data name="Displacement" />
+      <use-data name="Pressure" />
+    </mesh>
+
+    <participant name="Fluid">
+      <use-mesh name="Fluid-Mesh-Faces" provide="yes"/>
+      <use-mesh name="Fluid-Mesh-Nodes" provide="yes"/>
+      <use-mesh name="Solid-Mesh" from="Solid" />
+      <write-data name="Pressure" mesh="Fluid-Mesh-Faces"/>
+      <read-data name="Displacement" mesh="Fluid-Mesh-Nodes"/>
+      <mapping:nearest-projection  direction="read" from="Solid-Mesh" to="Fluid-Mesh-Nodes" constraint="consistent" />
+      <mapping:nearest-projection  direction="write" from="Fluid-Mesh-Faces" to="Solid-Mesh" constraint="consistent" />
+      <watch-point mesh="Fluid-Mesh-Nodes" name="Wall-0" coordinate="10.0;0.0" />
+      <watch-point mesh="Fluid-Mesh-Nodes" name="Wall-1" coordinate="10.0;2.5" />
+      <watch-point mesh="Fluid-Mesh-Nodes" name="Wall-2" coordinate="10.0;5.0" />
+      <watch-point mesh="Fluid-Mesh-Nodes" name="Wall-3" coordinate="10.0;7.5" />
+    </participant>
+
+    <participant name="Solid">
+      <use-mesh name="Solid-Mesh" provide="yes" />
+      <write-data name="Displacement" mesh="Solid-Mesh" />
+      <read-data name="Pressure" mesh="Solid-Mesh" />
+       <watch-point mesh="Solid-Mesh" name="Wall-0" coordinate="10.0;0.0" />
+       <watch-point mesh="Solid-Mesh" name="Wall-1" coordinate="10.0;2.5" />
+       <watch-point mesh="Solid-Mesh" name="Wall-2" coordinate="10.0;5.0" />
+       <watch-point mesh="Solid-Mesh" name="Wall-3" coordinate="10.0;7.5" />
+    </participant>
+
+    <m2n:sockets from="Fluid" to="Solid" exchange-directory="../../oscillations" />
+
+    <coupling-scheme:parallel-implicit>
+      <time-window-size value="0.1" />
+      <max-time value="100" />
+      <participants first="Fluid" second="Solid" />
+      <exchange data="Pressure" mesh="Solid-Mesh" from="Fluid" to="Solid" />
+      <exchange data="Displacement" mesh="Solid-Mesh" from="Solid" to="Fluid" />
+      <max-iterations value="50" />
+      <relative-convergence-measure limit="1e-6" data="Displacement" mesh="Solid-Mesh" />
+      <relative-convergence-measure limit="1e-6" data="Pressure" mesh="Solid-Mesh" />
+      <acceleration:IQN-ILS>
+        <data name="Displacement" mesh="Solid-Mesh" />
+        <data name="Pressure" mesh="Solid-Mesh" />
+        <preconditioner type="residual-sum" />
+        <filter type="QR2" limit="5e-1" />
+        <initial-relaxation value="0.1" />
+        <max-used-iterations value="100" />
+        <time-windows-reused value="15" />
+      </acceleration:IQN-ILS>
+    </coupling-scheme:parallel-implicit>
+  </solver-interface>
+</precice-configuration>
